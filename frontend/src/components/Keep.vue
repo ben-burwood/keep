@@ -2,7 +2,7 @@
     <div class="border border-base-300/50 shadow-sm rounded-lg bg-base-100 hover:bg-primary/10">
         <div class="card-body p-4">
             <div v-if="!isEditing" @click="startEdit" class="cursor-pointer">
-                <p class="whitespace-pre-wrap break-words">{{ keep.content }}</p>
+                <div class="prose prose-sm break-words" v-html="renderedContent"></div>
             </div>
 
             <div v-else class="flex flex-col gap-3">
@@ -26,7 +26,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
+import { ref, computed, nextTick } from "vue";
+import MarkdownIt from "markdown-it";
+
+const md = new MarkdownIt({ linkify: true });
 
 interface Keep {
     uuid: string;
@@ -34,6 +37,7 @@ interface Keep {
 }
 
 const props = defineProps<{ keep: Keep }>();
+const renderedContent = computed(() => md.render(props.keep.content));
 
 const isEditing = ref(false);
 const editContent = ref("");
