@@ -2,13 +2,25 @@
     <div class="min-h-screen min-w-screen bg-base-200">
         <ThemeSwitcher class="absolute top-4 right-4 hidden md:block" />
 
-        <div class="flex flex-col items-center justify-center p-5 w-full max-w-lg mx-auto">
+        <div class="flex flex-col items-center p-5 w-full max-w-lg mx-auto">
             <h1 class="text-4xl font-bold hidden md:block">Keep</h1>
 
+            <NewKeep @add="addKeep" class="mt-5 w-full" />
             <div class="divider"></div>
 
-            <div></div>
+            <div class="flex flex-col gap-2 w-full">
+                <Keep
+                    v-for="keep in keeps"
+                    :key="keep.uuid"
+                    :keep
+                    @edit="(content) => updateKeep(keep.uuid, content)"
+                    @delete="(uuid) => deleteKeep(uuid)"
+                />
 
+                <p v-if="keeps.length === 0" class="text-center text-base-content/40 mt-4">No keeps yet</p>
+            </div>
+
+            <!-- Error Toast -->
             <div v-if="errorMessage" role="alert" class="alert alert-error fixed bottom-10">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
                     <path
@@ -25,12 +37,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, nextTick, onMounted, watch } from "vue";
 import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
 import { SERVER_URL } from "@/main";
+import NewKeep from "@/components/NewKeep.vue";
+import Keep from "@/components/Keep.vue";
 
 const errorMessage = ref("");
-// clear error after 5 seconds
 watch(errorMessage, (newError) => {
     if (newError) {
         setTimeout(() => {
@@ -41,6 +54,7 @@ watch(errorMessage, (newError) => {
 
 const keeps = ref<{ uuid: string; content: string }[]>([]);
 
+// API calls
 async function fetchKeeps() {
     try {
         const res = await fetch(`${SERVER_URL}/keeps`);
@@ -53,7 +67,7 @@ onMounted(fetchKeeps);
 
 async function addKeep(content: string) {
     try {
-        const res = await fetch(`${SERVER_URL}/keeps/create`, {
+        await fetch(`${SERVER_URL}/keeps/create`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ content }),
@@ -66,7 +80,7 @@ async function addKeep(content: string) {
 
 async function updateKeep(uuid: string, updatedContent: string) {
     try {
-        const res = await fetch(`${SERVER_URL}/keeps/${uuid}`, {
+        await fetch(`${SERVER_URL}/keeps/${uuid}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ content: updatedContent }),
@@ -82,7 +96,7 @@ async function deleteKeep(uuid: string) {
         return;
     }
     try {
-        const res = await fetch(`${SERVER_URL}/keeps/${uuid}`, { method: "DELETE" });
+        await fetch(`${SERVER_URL}/keeps/${uuid}`, { method: "DELETE" });
         await fetchKeeps();
     } catch (error: any) {
         errorMessage.value = `Error: Deleting Keep : ${error.message}`;

@@ -21,13 +21,13 @@ func ListKeeps(w http.ResponseWriter, r *http.Request) {
 // CreateKeep handles POST /keeps
 func CreateKeep(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Keep string `json:"keep"`
+		KeepContent string `json:"content"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	newKeep, err := store.Create(*keep.NewKeep(req.Keep))
+	newKeep, err := store.Create(*keep.NewKeep(req.KeepContent))
 	if err != nil {
 		http.Error(w, "Failed to create keep", http.StatusInternalServerError)
 		return
@@ -45,13 +45,13 @@ func UpdateKeep(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var req struct {
-		Keep string `json:"keep"`
+		KeepContent string `json:"content"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	if err := store.Update(keep.KeepUUID(uuidString), req.Keep); err != nil {
+	if err := store.Update(keep.KeepUUID(uuidString), req.KeepContent); err != nil {
 		http.Error(w, "Keep not found", http.StatusNotFound)
 		return
 	}
