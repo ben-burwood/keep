@@ -26,7 +26,7 @@
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^24.10.4",
     "@vitejs/plugin-vue": "^6.0.3",
-    "@vue/tsconfig": "^0.8.1",
+    "@vue/tsconfig": "^0.9.0",
     "daisyui": "^5.5.14",
     "npm-run-all2": "^8.0.4",
     "typescript": "~5.9.3",
